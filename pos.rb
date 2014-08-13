@@ -12,10 +12,12 @@ def welcome
   until choice == '0'
     puts "1: Manager Log in"
     puts "2: Cashier Log in"
+    puts "3: Customer Log in"
     choice = gets.chomp
     case choice
     when '1' then manager_menu
     when '2' then cashier_login
+    when '3' then customer_menu
     when '0' then exit
     else
       puts "Not a valid option."
@@ -102,20 +104,41 @@ end
 def cashier_menu
   choice = nil
   until choice == '0'
-    puts "1: Ring up product"
-    puts "2: Show reciept"
+    puts "1: New visit"
     puts "9: Log out"
     puts "0: Leave the store"
     choice = gets.chomp
     case choice
-    when '1' then ring_up
-    when '2' then recipt
+    when '1' then new_purchase
     when '9' then log_out
     when '0' then exit
     else
       puts "Not a valid option."
     end
   end
+end
+
+def customer_menu
+  choice = nil
+  until choice == '0'
+    puts "1: Add shopping cart"
+    puts "0: Leave the store"
+    choice = gets.chomp
+    case choice
+    when '1' then add_products
+    when '9' then log_out
+    when '0' then exit
+    else
+      puts "Not a valid option."
+    end
+  end
+end
+
+def add_products
+  list_products
+  print "Choose a product: "; product_name = gets.chomp
+  print "Choose quanity: "; quanity = gets.chomp.to_i
+
 end
 
 welcome
