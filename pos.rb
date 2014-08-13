@@ -121,11 +121,11 @@ end
 def customer_menu
   choice = nil
   until choice == '0'
-    puts "1: Add shopping cart"
+    puts "1: New shopping cart"
     puts "0: Leave the store"
     choice = gets.chomp
     case choice
-    when '1' then add_products
+    when '1' then new_purchase
     when '9' then log_out
     when '0' then exit
     else
@@ -134,11 +134,20 @@ def customer_menu
   end
 end
 
-def add_products
+@current_purchase
+
+def new_purchase
+  @current_purchase = Purchase.create()
+  add_item
+
+end
+
+def add_item
   list_products
   print "Choose a product: "; product_name = gets.chomp
+  product_id = Product.find_by({name: product_name})
   print "Choose quanity: "; quanity = gets.chomp.to_i
-
+  @current_purchase.update({product_id: product_id, quanity: quanity})
 end
 
 welcome
