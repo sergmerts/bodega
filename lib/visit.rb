@@ -13,4 +13,11 @@ class Visit < ActiveRecord::Base
     end
     visit_total
   end
+
+  def self.total_by_date(start_date,end_date)
+    self.where("date > '#{start_date}' AND < date '#{end_date}'").each do |visit|
+      total = 0
+      total = total + visit.total
+    end
+  end
 end
