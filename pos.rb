@@ -11,9 +11,11 @@ def welcome
   choice = nil
   until choice == '0'
     puts "1: Manager Log in"
+    puts "2: Cashier Log in"
     choice = gets.chomp
     case choice
     when '1' then manager_menu
+    when '2' then cashier_login
     when '0' then exit
     else
       puts "Not a valid option."
@@ -76,5 +78,44 @@ def list_cashiers
   puts "\n\n"
 end
 
+@current_cashier
+
+def cashier_login
+  puts "Enter your name to log in:"
+  name = gets.chomp
+  @current_cashier = Cashier.find_by({name: name})
+  if @current_cashier == nil
+    puts "#{name} doesn't work here!"
+  else
+    @current_cashier.update({loged_in: true})
+    puts "Welcome, #{@current_cashier.name}. Start working."
+    cashier_menu
+  end
+end
+
+def log_out
+  @current_cashier.update({loged_in: false})
+  puts "#{@current_cashier.name} logged out."
+  welcome
+end
+
+def cashier_menu
+  choice = nil
+  until choice == '0'
+    puts "1: Ring up product"
+    puts "2: Show reciept"
+    puts "9: Log out"
+    puts "0: Leave the store"
+    choice = gets.chomp
+    case choice
+    when '1' then ring_up
+    when '2' then recipt
+    when '9' then log_out
+    when '0' then exit
+    else
+      puts "Not a valid option."
+    end
+  end
+end
 
 welcome
