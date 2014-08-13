@@ -36,6 +36,7 @@ def manager_menu
     puts "2: List products"
     puts "3: Add cashier"
     puts "4: List cashiers"
+    puts "5: Check sales"
     puts "0: Leave the store"
     choice = gets.chomp
     case choice
@@ -43,11 +44,15 @@ def manager_menu
     when '2' then list_products
     when '3' then add_cashier
     when '4' then list_cashiers
+    when '5' then sales
     when '0' then exit
     else
       puts "Not a valid option."
     end
   end
+end
+
+def sales
 end
 
 def add_product
@@ -125,7 +130,7 @@ def customer_menu
   print "Enter your name: "; customer_name = gets.chomp
   new_customer = Customer.create({name: customer_name})
   current_cashier = Cashier.where({:loged_in => true}).first
-  @new_visit = Visit.create({customer_id: new_customer.id, cashier_id: current_cashier.id})
+  @new_visit = Visit.create({customer_id: new_customer.id, cashier_id: current_cashier.id, date: Date.today})
   choice = nil
   until choice == '0'
     puts "1: Add item to shopping cart"
@@ -178,11 +183,10 @@ def checkout
     puts "Quantity: #{purchase.quantity}"
     purchase_total = purchase.quantity * product.price
     puts "Item total: $" + purchase_total.to_s
-    visit_total = visit_total.to_f + purchase_total.to_f
     puts "\n"
   end
   puts "============"
-  puts "Total due: $" + visit_total.to_s
+  puts "Total due: $" + @new_visit.total
 end
 
 welcome
