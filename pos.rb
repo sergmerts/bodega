@@ -2,6 +2,8 @@ require 'active_record'
 require './lib/product'
 require './lib/cashier'
 require './lib/purchase'
+require './lib/customer'
+require './lib/visit'
 require 'pry'
 
 database_configurations = YAML::load(File.open('./db/config.yml'))
@@ -105,13 +107,13 @@ end
 def cashier_menu
   choice = nil
   until choice == '0'
-    puts "1: New visit"
+    puts "1: Go to main menu"
     puts "9: Log out"
     puts "0: Leave the store"
     choice = gets.chomp
     case choice
-    when '1' then new_purchase
     when '9' then log_out
+    when '1' then welcome
     when '0' then exit
     else
       puts "Not a valid option."
@@ -120,13 +122,19 @@ def cashier_menu
 end
 
 def customer_menu
+  print "Enter your name: "; customer_name = gets.chomp
+  new_customer = Customer.create({name: customer_name})
+  current_cashier = Cashier.where({:loged_in => true}).first
+  @new_visit = Visit.create({customer_id: new_customer.id, cashier_id: current_cashier.id})
   choice = nil
   until choice == '0'
     puts "1: Add item to shopping cart"
+    puts "2: Checkout"
     puts "0: Leave the store"
     choice = gets.chomp
     case choice
     when '1' then add_item
+    when '2' then checkout
     when '9' then log_out
     when '0' then exit
     else
@@ -144,16 +152,37 @@ def add_item
     add_item
   else
     print "Choose quanity: "; quantity = gets.chomp.to_i
-    new_purchase = Purchase.create({product_id: product.id, quanity: quantity})
-    puts "#{product.name} added. Add another product?"
+    new_purchase = Purchase.create({product_id: product.id, quantity: quantity, visit_id: @new_visit.id})
+    puts "#{product.name} added."
+    puts "1: Add another item"
+    puts "2: Checkout"
+    puts "3: Return to the main menu"
     choice = gets.chomp.upcase
     case choice
-    when 'Y' then add_item
-    when 'N' then customer_menu
+    when '1' then add_item
+    when '2' then checkout
+    when '3' then customer_menu
     else
       puts "Not a valid option."
     end
   end
+end
+
+def checkout
+  puts "Receipt"
+  puts "-------"
+  visit_total = 0
+  @new_visit.purchases.each do |purchase|
+    product = Product.where({id: purchase.product_id}).first
+    puts "Item: #{product.name}"
+    puts "Quantity: #{purchase.quantity}"
+    purchase_total = purchase.quantity * product.price
+    puts "Item total: $" + purchase_total.to_s
+    visit_total = visit_total.to_f + purchase_total.to_f
+    puts "\n"
+  end
+  puts "============"
+  puts "Total due: $" + visit_total.to_s
 end
 
 welcome
