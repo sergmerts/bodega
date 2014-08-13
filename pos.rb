@@ -1,6 +1,8 @@
 require 'active_record'
 require './lib/product'
 require './lib/cashier'
+require './lib/purchase'
+require 'pry'
 
 database_configurations = YAML::load(File.open('./db/config.yml'))
 development_configuration = database_configurations['development']
@@ -80,7 +82,6 @@ def list_cashiers
   puts "\n\n"
 end
 
-@current_cashier
 
 def cashier_login
   puts "Enter your name to log in:"
@@ -121,11 +122,11 @@ end
 def customer_menu
   choice = nil
   until choice == '0'
-    puts "1: New shopping cart"
+    puts "1: Add item to shopping cart"
     puts "0: Leave the store"
     choice = gets.chomp
     case choice
-    when '1' then new_purchase
+    when '1' then add_item
     when '9' then log_out
     when '0' then exit
     else
@@ -134,20 +135,25 @@ def customer_menu
   end
 end
 
-@current_purchase
-
-def new_purchase
-  @current_purchase = Purchase.create()
-  add_item
-
-end
-
 def add_item
   list_products
   print "Choose a product: "; product_name = gets.chomp
-  product_id = Product.find_by({name: product_name})
-  print "Choose quanity: "; quanity = gets.chomp.to_i
-  @current_purchase.update({product_id: product_id, quanity: quanity})
+  product = Product.find_by({name: product_name})
+  if product == nil
+    puts "Product out of stock"
+    add_item
+  else
+    print "Choose quanity: "; quantity = gets.chomp.to_i
+    new_purchase = Purchase.create({product_id: product.id, quanity: quantity})
+    puts "#{product.name} added. Add another product?"
+    choice = gets.chomp.upcase
+    case choice
+    when 'Y' then add_item
+    when 'N' then customer_menu
+    else
+      puts "Not a valid option."
+    end
+  end
 end
 
 welcome
